@@ -52,7 +52,8 @@ Primary scope in this repository:
 ```
 filler/
 ├── src/                    # Robot source
-│   ├── main.rs             # stdin/stdout game loop
+│   ├── lib.rs              # Library root (modules + tests)
+│   ├── main.rs             # Binary entry (stdin loop in T12)
 │   ├── parse.rs            # Engine protocol parsing
 │   ├── model.rs            # Anfield, Piece, PlayerId
 │   ├── placement.rs        # Validity and overlap rules
@@ -144,7 +145,7 @@ cargo fmt --check              # Format check
 **Docker matches** (inside `docker_image` container after mount):
 
 ```bash
-./game_engine -f maps/map00 -p1 /filler/solution/filler -p2 robots/wall_e
+./linux_game_engine -f maps/map00 -p1 solution/filler -p2 linux_robots/wall_e
 ```
 
 ---
