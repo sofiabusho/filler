@@ -13,41 +13,66 @@ This repo uses a requirements-first, audit-first agent setup:
 | [`docs/audit.md`](docs/audit.md) | AUD IDs (acceptance gate) |
 | [`docs/ticket-tracker.md`](docs/ticket-tracker.md) | Current work queue |
 
-Start with **T01** in the ticket tracker unless told otherwise.
+Start with **T10** in the ticket tracker (Sprint 0 complete).
 
 ## Prerequisites
 
 - Rust toolchain (`cargo`, `rustc`)
-- Docker (for `game_engine` matches)
+- Docker (`docker.io` on WSL, or Docker Desktop with WSL integration)
 - Official `docker_image` zip from [01-edu filler assets](https://assets.01-edu.org/filler/filler.zip)
 
-## Quick start
+## Build and test (host)
 
 ```bash
-# Build robot (once src/ exists)
 cargo build --release
-mkdir -p solution
-cp target/release/filler solution/
-
-# Unit tests (host)
 cargo test
-cargo clippy
+cargo clippy -- -D warnings
 cargo fmt --check
 ```
 
-### Docker (engine)
+Copy the release binary into `solution/` for engine matches:
 
 ```bash
-cd docker_image   # extracted from filler.zip
+cp target/release/filler solution/
+chmod +x solution/filler
+```
+
+## Docker setup (`docker_image/`)
+
+The engine zip is **not** in git. Extract it locally:
+
+```bash
+cd ~/filler
+unzip /path/to/filler.zip   # creates docker_image/
+```
+
+Build and run the container from `docker_image/`:
+
+```bash
+cd docker_image
 docker build -t filler .
 docker run -v "$(pwd)/../solution":/filler/solution -it filler
 ```
 
-Inside the container:
+Mount notes:
+
+- Host `filler/solution/` → container `/filler/solution/`
+- Run `docker run` from `docker_image/` so `../solution` resolves correctly
+- `docker_image/` is listed in `.gitignore` (large binaries)
+
+## Smoke test (inside container)
+
+At the `/filler#` prompt:
 
 ```bash
-./game_engine -f maps/map01 -p1 /filler/solution/filler -p2 robots/bender
+# Reference robots only (AUD-1)
+./linux_game_engine -f maps/map01 -p1 linux_robots/bender -p2 linux_robots/terminator
+
+# Student player (after T12 + release build copied to solution/)
+./linux_game_engine -f maps/map01 -p1 solution/filler -p2 linux_robots/bender
 ```
+
+Use `linux_game_engine` and `linux_robots/` on Linux/WSL. On M1 Mac use `m1_game_engine` and `m1_robots/` (see `docker_image/README.md`).
 
 ## Source briefs
 
@@ -55,8 +80,6 @@ Read-only stakeholder text:
 
 - [`docs/raw/REQUIREMENTS-SOURCE.md`](docs/raw/REQUIREMENTS-SOURCE.md)
 - [`docs/raw/AUDIT-SOURCE.md`](docs/raw/AUDIT-SOURCE.md)
-
-Derived agent docs (`docs/requirements.md`, `docs/audit.md`) trace REQ/AUD IDs to these sources.
 
 ## License
 
