@@ -6,7 +6,7 @@
 > - **REQ-***: Functional Requirements (`docs/requirements.md`)
 > - **AUD-***: Audit Acceptance Criteria (`docs/audit.md`)
 
-Last refreshed: 2026-06-30
+Last refreshed: 2026-06-30 (T01–T03 ✅)
 
 ---
 
@@ -56,9 +56,9 @@ Execution order:
 
 | ID | Status | Ticket | Size | Deps | Coverage |
 |----|--------|--------|------|------|----------|
-| T01 | ⬜ | **Project scaffolding**: `cargo init`, module stubs (`parse`, `model`, `placement`, `strategy`), `solution/` dir | S | — | NFR-1, NFR-2 |
-| T02 | ⬜ | **Quality gates**: `cargo test` harness, clippy/fmt in README | S | T01 | NFR-5, NFR-6, AUD-12 |
-| T03 | ⬜ | **Docker runbook**: document `docker_image` setup, mount path, smoke `game_engine` command | S | — | REQ-8, AUD-1 |
+| T01 | ✅ | **Project scaffolding**: `cargo init`, module stubs (`parse`, `model`, `placement`, `strategy`), `solution/` dir | S | — | NFR-1, NFR-2 |
+| T02 | ✅ | **Quality gates**: `cargo test` harness, clippy/fmt in README | S | T01 | NFR-5, NFR-6, AUD-12 |
+| T03 | ✅ | **Docker runbook**: document `docker_image` setup, mount path, smoke `game_engine` command | S | — | REQ-8, AUD-1 |
 
 ---
 
@@ -172,9 +172,9 @@ Execution order:
 
 ## Immediate Next Work Queue
 
-1. **T01** — Project scaffolding (`cargo init`, module stubs)
-2. **T02** — Quality gates (test harness, clippy/fmt docs)
-3. **T03** — Docker runbook (can parallel T01)
+1. **T10** — Input parsing (`parse_turn`, Anfield grid, piece mask)
+2. **T11** — Placement validation (overlap counting, bounds)
+3. **T12** — IO loop + `X Y\n` output
 
 ---
 
