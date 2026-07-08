@@ -6,7 +6,7 @@
 > - **REQ-***: Functional Requirements (`docs/requirements.md`)
 > - **AUD-***: Audit Acceptance Criteria (`docs/audit.md`)
 
-Last refreshed: 2026-07-08 (T10 ✅)
+Last refreshed: 2026-07-09 (T11 ✅)
 
 ---
 
@@ -69,7 +69,7 @@ Execution order:
 | ID | Status | Ticket | Size | Deps | Coverage |
 |----|--------|--------|------|------|----------|
 | T10 | ✅ | **Input parsing**: `parse_turn`, Anfield grid, piece mask from brief fixtures | M | T01 | REQ-1, REQ-3, REQ-10, AUD-8 |
-| T11 | ⬜ | **Placement validation**: overlap counting, bounds, opponent check | M | T10 | REQ-4–REQ-6, REQ-11, REQ-12, AUD-9, AUD-10 |
+| T11 | ✅ | **Placement validation**: overlap counting, bounds, opponent check | M | T10 | REQ-4–REQ-6, REQ-11, REQ-12, AUD-9, AUD-10 |
 | T12 | ⬜ | **IO loop + output**: stdin loop, `X Y\n` serializer, `0 0` fallback | M | T10, T11 | REQ-2, REQ-7, REQ-13, AUD-2, AUD-3, AUD-11 |
 | T13 | ⬜ | **Baseline strategy**: pick valid move maximizing new territory | M | T11 | REQ-9 (partial) |
 
@@ -172,8 +172,8 @@ Execution order:
 
 ## Immediate Next Work Queue
 
-1. **T11** — Placement validation (overlap counting, bounds)
-2. **T12** — IO loop + `X Y\n` output
+1. **T12** — IO loop + `X Y\n` output
+2. **T13** — Baseline strategy (maximize new territory)
 
 ---
 
