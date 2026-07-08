@@ -39,6 +39,12 @@ pub struct Piece {
     pub mask: Vec<bool>,
 }
 
+impl Piece {
+    pub fn filled_count(&self) -> usize {
+        self.mask.iter().filter(|&&filled| filled).count()
+    }
+}
+
 /// Engine stdout format: `"{x} {y}\n"`.
 pub fn format_move(x: i32, y: i32) -> String {
     format!("{x} {y}\n")
