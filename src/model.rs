@@ -43,6 +43,10 @@ impl Piece {
     pub fn filled_count(&self) -> usize {
         self.mask.iter().filter(|&&filled| filled).count()
     }
+
+    pub fn is_filled(&self, x: usize, y: usize) -> bool {
+        self.mask[y * self.width + x]
+    }
 }
 
 /// Engine stdout format: `"{x} {y}\n"`.
