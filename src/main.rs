@@ -1,5 +1,14 @@
+use std::io::{self, BufReader};
+
+use filler::game;
+
 fn main() {
-    // Stdin game loop wired in T12.
-    eprintln!("filler: robot scaffold ready — complete T12 for engine play");
-    std::process::exit(1);
+    let stdin = io::stdin();
+    let mut reader = BufReader::new(stdin.lock());
+    let mut stdout = io::stdout();
+
+    if let Err(err) = game::run_game(&mut reader, &mut stdout) {
+        eprintln!("filler: {err}");
+        std::process::exit(1);
+    }
 }
