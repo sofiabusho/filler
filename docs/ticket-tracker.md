@@ -6,7 +6,7 @@
 > - **REQ-***: Functional Requirements (`docs/requirements.md`)
 > - **AUD-***: Audit Acceptance Criteria (`docs/audit.md`)
 
-Last refreshed: 2026-07-11 (T12 ✅)
+Last refreshed: 2026-07-11 (T13 ✅)
 
 ---
 
@@ -71,7 +71,7 @@ Execution order:
 | T10 | ✅ | **Input parsing**: `parse_turn`, Anfield grid, piece mask from brief fixtures | M | T01 | REQ-1, REQ-3, REQ-10, AUD-8 |
 | T11 | ✅ | **Placement validation**: overlap counting, bounds, opponent check | M | T10 | REQ-4–REQ-6, REQ-11, REQ-12, AUD-9, AUD-10 |
 | T12 | ✅ | **IO loop + output**: stdin loop, `X Y\n` serializer, `0 0` fallback | M | T10, T11 | REQ-2, REQ-7, REQ-13, AUD-2, AUD-3, AUD-11 |
-| T13 | ⬜ | **Baseline strategy**: pick valid move maximizing new territory | M | T11 | REQ-9 (partial) |
+| T13 | ✅ | **Baseline strategy**: pick valid move maximizing new territory | M | T11 | REQ-9 (partial) |
 
 ---
 
@@ -145,7 +145,7 @@ Execution order:
 | REQ-4–REQ-6 | Placement rules | T11 | G1 |
 | REQ-7 | No-move fallback | T12 | G1 |
 | REQ-8 | Docker setup | T03 | G1 |
-| REQ-9 | Win opponents | T20–T22 | G2 |
+| REQ-9 | Win opponents | T13 (baseline), T20–T22 | G2 |
 | REQ-10–REQ-13 | Unit tests | T10–T12 | G2 |
 | REQ-B1 | Visualizer | T40 | — |
 | REQ-B2 | Terminator | T41 | — |
@@ -172,7 +172,7 @@ Execution order:
 
 ## Immediate Next Work Queue
 
-1. **T13** — Baseline strategy (maximize new territory)
+1. **T20** — Beat `wall_e` on `map00`
 2. **Gate G1** — Verify Docker engine run with `solution/filler` (AUD-2 full evidence)
 
 ---
