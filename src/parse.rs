@@ -46,12 +46,7 @@ pub fn parse_exec_line(line: &str) -> Result<PlayerId, ParseError> {
 }
 
 pub fn parse_turn(input: &str) -> Result<Turn, ParseError> {
-    let lines: Vec<&str> = input
-        .lines()
-        .map(str::trim_end)
-        .filter(|line| !line.is_empty())
-        .collect();
-
+    let lines = non_empty_lines(input);
     if lines.is_empty() {
         return Err(ParseError::UnexpectedEof);
     }
@@ -63,6 +58,28 @@ pub fn parse_turn(input: &str) -> Result<Turn, ParseError> {
         anfield,
         piece,
     })
+}
+
+pub fn parse_turn_continuation(input: &str, player: PlayerId) -> Result<Turn, ParseError> {
+    let lines = non_empty_lines(input);
+    if lines.is_empty() {
+        return Err(ParseError::UnexpectedEof);
+    }
+
+    let (anfield, piece) = parse_board_and_piece(&lines, player)?;
+    Ok(Turn {
+        player,
+        anfield,
+        piece,
+    })
+}
+
+fn non_empty_lines(input: &str) -> Vec<&str> {
+    input
+        .lines()
+        .map(str::trim_end)
+        .filter(|line| !line.is_empty())
+        .collect()
 }
 
 fn parse_board_and_piece(lines: &[&str], player: PlayerId) -> Result<(Anfield, Piece), ParseError> {
@@ -327,5 +344,22 @@ Board 20 15:
 Piece 1 1:
 #";
         assert_eq!(parse_turn(input), Err(ParseError::InvalidAnfieldHeader));
+    }
+
+    #[test]
+    fn parse_turn_continuation_reads_anfield_and_piece_only() {
+        let input = "\
+Anfield 3 2:
+000 ...
+001 .@.
+Piece 2 2:
+.#
+#.";
+
+        let turn = parse_turn_continuation(input, PlayerId::P2).expect("continuation should parse");
+        assert_eq!(turn.player, PlayerId::P2);
+        assert_eq!(turn.anfield.width, 3);
+        assert_eq!(turn.anfield.height, 2);
+        assert_eq!(turn.piece.mask, vec![false, true, true, false]);
     }
 }
