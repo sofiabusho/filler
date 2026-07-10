@@ -58,6 +58,26 @@ pub fn count_own_overlaps(
     count
 }
 
+pub fn count_new_territory(anfield: &Anfield, piece: &Piece, x: i32, y: i32) -> u32 {
+    if !piece_fits_in_bounds(anfield, piece, x, y) {
+        return 0;
+    }
+
+    let mut count = 0u32;
+    for py in 0..piece.height {
+        for px in 0..piece.width {
+            if !piece.is_filled(px, py) {
+                continue;
+            }
+            let cell = anfield_cell(anfield, x + px as i32, y + py as i32);
+            if cell == Cell::Empty {
+                count += 1;
+            }
+        }
+    }
+    count
+}
+
 pub fn iter_valid_placements<'a>(
     anfield: &'a Anfield,
     piece: &'a Piece,
@@ -233,6 +253,15 @@ mod tests {
         let tet = piece(&["#"]);
 
         assert_eq!(count_own_overlaps(&board, &tet, PlayerId::P1, -1, 1), 0);
+    }
+
+    #[test]
+    fn count_new_territory_counts_empty_cells_covered_by_piece() {
+        let board = anfield(&["...", ".@.", "..."]);
+        let line = piece(&["###"]);
+
+        assert_eq!(count_new_territory(&board, &line, 0, 1), 2);
+        assert_eq!(count_new_territory(&board, &line, 1, 0), 0);
     }
 
     #[test]
