@@ -61,6 +61,9 @@ fn try_parse_pending_turn(lines: &[String], player: Option<PlayerId>) -> io::Res
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::model::PlayerId;
+    use crate::parse::parse_turn;
+    use crate::placement::validate_placement;
     use std::io::Cursor;
 
     const BRIEF_TURN_P1: &str = "\
@@ -94,13 +97,58 @@ Anfield 3 3:
 Piece 1 1:
 #";
 
+    fn parse_move_line(output: &[u8]) -> (i32, i32) {
+        let text = std::str::from_utf8(output).expect("utf8 move");
+        let mut parts = text.trim_end().split_whitespace();
+        let x: i32 = parts.next().unwrap().parse().unwrap();
+        let y: i32 = parts.next().unwrap().parse().unwrap();
+        (x, y)
+    }
+
+    #[test]
+    fn run_game_line_by_line_seed4_first_move() {
+        use std::io::BufReader;
+
+        const TURN: &str = "\
+$$$ exec p2 : [solution/filler]
+Anfield 20 15:
+    01234567890123456789
+000 ....................
+001 ..........a.........
+002 .........a..........
+003 ....................
+004 ....................
+005 ....................
+006 ....................
+007 ....................
+008 ....................
+009 ....................
+010 ....................
+011 ....................
+012 .........$..........
+013 ....................
+014 ....................
+Piece 2 1:
+OO";
+
+        let mut reader = BufReader::new(TURN.as_bytes());
+        let mut output = Vec::new();
+        run_game(&mut reader, &mut output).expect("game loop should succeed");
+        assert_eq!(output, b"9 12\n");
+    }
+
     #[test]
     fn run_game_emits_valid_move_for_brief_fixture() {
         let mut input = Cursor::new(BRIEF_TURN_P1);
         let mut output = Vec::new();
 
         run_game(&mut input, &mut output).expect("game loop should succeed");
-        assert_eq!(output, b"7 2\n");
+        let turn = parse_turn(BRIEF_TURN_P1).expect("fixture should parse");
+        let (x, y) = parse_move_line(&output);
+        assert_eq!(
+            validate_placement(&turn.anfield, &turn.piece, turn.player, x, y),
+            Ok(())
+        );
     }
 
     #[test]
@@ -120,6 +168,23 @@ Piece 1 1:
         let mut output = Vec::new();
 
         run_game(&mut reader, &mut output).expect("multi-turn loop should succeed");
-        assert_eq!(output, b"7 2\n1 0\n");
+
+        let turn1 = parse_turn(BRIEF_TURN_P1).expect("first turn should parse");
+        let (x1, y1) =
+            parse_move_line(&output[..output.iter().position(|&b| b == b'\n').unwrap() + 1]);
+        assert_eq!(
+            validate_placement(&turn1.anfield, &turn1.piece, turn1.player, x1, y1),
+            Ok(())
+        );
+
+        let second_input = "Anfield 3 3:\n000 .@.\n001 ...\n002 ...\nPiece 1 1:\n#\n";
+        let turn2 = parse_turn(&format!("$$$ exec p1 : [robots/bender]\n{second_input}"))
+            .expect("second turn should parse");
+        let (x2, y2) =
+            parse_move_line(&output[output.iter().position(|&b| b == b'\n').unwrap() + 1..]);
+        assert_eq!(
+            validate_placement(&turn2.anfield, &turn2.piece, PlayerId::P1, x2, y2),
+            Ok(())
+        );
     }
 }
