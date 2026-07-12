@@ -6,7 +6,7 @@
 > - **REQ-***: Functional Requirements (`docs/requirements.md`)
 > - **AUD-***: Audit Acceptance Criteria (`docs/audit.md`)
 
-Last refreshed: 2026-07-12 (T20 ✅)
+Last refreshed: 2026-07-12 (T21 ✅)
 
 ---
 
@@ -82,7 +82,7 @@ Execution order:
 | ID | Status | Ticket | Size | Deps | Coverage |
 |----|--------|--------|------|------|----------|
 | T20 | ✅ | **Beat wall_e**: tune/heuristics for `maps/map00`, 5-run battery — AUD-4 **4/5** | M | T13 | REQ-9, AUD-4 |
-| T21 | ⬜ | **Beat h2_d2**: tune for `maps/map01`, 5-run battery | M | T20 | REQ-9, AUD-5 |
+| T21 | ✅ | **Beat h2_d2**: tune for `maps/map01`, 5-run battery — AUD-5 **5/5** | M | T20 | REQ-9, AUD-5 |
 | T22 | ⬜ | **Beat bender**: tune for `maps/map02`, 5-run battery | M | T21 | REQ-9, AUD-6 |
 
 ---
@@ -172,7 +172,7 @@ Execution order:
 
 ## Immediate Next Work Queue
 
-1. **T21** — Beat `h2_d2` on `map01` (AUD-5)
+1. **T22** — Beat `bender` on `map02` (AUD-6)
 
 ---
 
