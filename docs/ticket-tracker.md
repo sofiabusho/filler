@@ -6,7 +6,7 @@
 > - **REQ-***: Functional Requirements (`docs/requirements.md`)
 > - **AUD-***: Audit Acceptance Criteria (`docs/audit.md`)
 
-Last refreshed: 2026-07-12 (T21 ✅)
+Last refreshed: 2026-07-12 (T30 ✅)
 
 ---
 
@@ -93,7 +93,7 @@ Execution order:
 
 | ID | Status | Ticket | Size | Deps | Coverage |
 |----|--------|--------|------|------|----------|
-| T30 | ⬜ | **Audit dry-run**: `cargo test`, AUD-1–AUD-13 evidence in PR messages | S | T22, T03 | AUD-7, AUD-12, AUD-13, Gate G2 |
+| T30 | ✅ | **Audit dry-run**: `cargo test`, AUD-1–AUD-13 evidence in PR messages — **Gate G2** | S | T22, T03 | AUD-7, AUD-12, AUD-13, Gate G2 |
 
 ---
 
@@ -172,7 +172,10 @@ Execution order:
 
 ## Immediate Next Work Queue
 
-1. **T30** — Audit dry-run: `cargo test`, AUD-1–AUD-13 evidence in PR messages
+Mandatory requirements complete (Gate G2). Optional bonus:
+
+1. **T40** — Graphic visualizer (AUD-B1)
+2. **T41** — Beat terminator (AUD-B2)
 
 ---
 
