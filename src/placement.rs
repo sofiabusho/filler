@@ -618,6 +618,28 @@ fn neighbors(
     })
 }
 
+pub fn iter_valid_placements_near_own<'a>(
+    anfield: &'a Anfield,
+    piece: &'a Piece,
+    player: PlayerId,
+) -> impl Iterator<Item = (i32, i32)> + 'a {
+    let bounds = own_territory_bounds(anfield);
+    let pad_x = piece.width as i32;
+    let pad_y = piece.height as i32;
+    let min_x = (bounds.min_x - pad_x).max(0);
+    let max_x = (bounds.max_x + pad_x).min(anfield.width.saturating_sub(piece.width) as i32);
+    let min_y = (bounds.min_y - pad_y).max(0);
+    let max_y = (bounds.max_y + pad_y).min(anfield.height.saturating_sub(piece.height) as i32);
+
+    (min_x..=max_x).flat_map(move |x| {
+        (min_y..=max_y).filter_map(move |y| {
+            validate_placement(anfield, piece, player, x, y)
+                .ok()
+                .map(|()| (x, y))
+        })
+    })
+}
+
 pub fn iter_valid_placements<'a>(
     anfield: &'a Anfield,
     piece: &'a Piece,
