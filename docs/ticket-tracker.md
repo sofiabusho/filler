@@ -83,7 +83,7 @@ Execution order:
 |----|--------|--------|------|------|----------|
 | T20 | ✅ | **Beat wall_e**: tune/heuristics for `maps/map00`, 5-run battery — AUD-4 **4/5** | M | T13 | REQ-9, AUD-4 |
 | T21 | ✅ | **Beat h2_d2**: tune for `maps/map01`, 5-run battery — AUD-5 **5/5** | M | T20 | REQ-9, AUD-5 |
-| T22 | ⬜ | **Beat bender**: tune for `maps/map02`, 5-run battery | M | T21 | REQ-9, AUD-6 |
+| T22 | ✅ | **Beat bender**: tune for `maps/map02`, 5-run battery — AUD-6 **4/5** | M | T21 | REQ-9, AUD-6 |
 
 ---
 
@@ -172,7 +172,7 @@ Execution order:
 
 ## Immediate Next Work Queue
 
-1. **T22** — Beat `bender` on `map02` (AUD-6)
+1. **T30** — Audit dry-run: `cargo test`, AUD-1–AUD-13 evidence in PR messages
 
 ---
 
