@@ -50,6 +50,8 @@ Build and run the container from `docker_image/`:
 
 ```bash
 cd docker_image
+chmod +x linux_game_engine m1_game_engine
+chmod +x linux_robots/* m1_robots/*
 docker build -t filler .
 docker run -v "$(pwd)/../solution":/filler/solution -it filler
 ```
