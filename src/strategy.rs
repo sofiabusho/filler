@@ -2,15 +2,23 @@
 
 use crate::model::{Anfield, Piece, PlayerId};
 use crate::placement::{
-    apply_placement, count_foe_valid_placements, count_new_territory, count_voronoi_empty_for_foe,
-    count_voronoi_empty_for_own, horizontal_span_own, iter_valid_placements,
-    min_distance_new_cells_to_foe,
+    apply_placement, border_touch_bonus, count_foe_valid_placements, count_new_territory,
+    count_voronoi_empty_for_foe, count_voronoi_empty_for_own, expansion_bonus,
+    foe_territory_bounds, horizontal_span_own, iter_valid_placements,
+    min_distance_new_cells_to_foe, own_territory_bounds, TerritoryBounds,
 };
 
 /// Fallback `(0, 0)` when no valid placement exists (REQ-7).
 pub const FALLBACK_MOVE: (i32, i32) = (0, 0);
 
-const SPAWN_COLUMN: i32 = 9;
+struct EvalContext<'a> {
+    anfield: &'a Anfield,
+    piece: &'a Piece,
+    player: PlayerId,
+    my_bounds: TerritoryBounds,
+    opp_bounds: TerritoryBounds,
+    center_col: i32,
+}
 
 pub fn choose_move(anfield: &Anfield, piece: &Piece, player: PlayerId) -> (i32, i32) {
     let mut placements: Vec<(i32, i32)> = iter_valid_placements(anfield, piece, player).collect();
@@ -25,51 +33,77 @@ pub fn choose_move(anfield: &Anfield, piece: &Piece, player: PlayerId) -> (i32, 
         }
     }
 
-    placements
-        .sort_by(|&(x2, y2), &(x1, y1)| cmp_placement(anfield, piece, player, x1, y1, x2, y2));
+    let my_bounds = own_territory_bounds(anfield);
+    let eval = EvalContext {
+        anfield,
+        piece,
+        player,
+        my_bounds,
+        opp_bounds: foe_territory_bounds(anfield),
+        center_col: territory_center_column(my_bounds),
+    };
+
+    placements.sort_by(|&(x2, y2), &(x1, y1)| {
+        placement_rank(x1, y1, &eval)
+            .cmp(&placement_rank(x2, y2, &eval))
+            .then_with(|| (x2, y2).cmp(&(x1, y1)))
+    });
 
     placements[0]
 }
 
-fn cmp_placement(
+fn territory_center_column(bounds: TerritoryBounds) -> i32 {
+    (bounds.min_x + bounds.max_x) / 2
+}
+
+fn placement_rank(
+    x: i32,
+    y: i32,
+    eval: &EvalContext<'_>,
+) -> (u32, i64, i64, i64, i64, i64, i64, i64, i64, i32) {
+    (
+        count_new_territory(eval.anfield, eval.piece, x, y),
+        expansion_bonus(eval.piece, x, y, eval.my_bounds, eval.opp_bounds),
+        voronoi_delta(eval.anfield, eval.piece, x, y),
+        foe_voronoi_delta(eval.anfield, eval.piece, x, y),
+        territory_column_bias(x, eval.center_col),
+        advance_bias(eval.anfield, eval.piece, eval.player, x, y),
+        horizontal_advance_bias(eval.anfield, eval.piece, eval.player, x, y),
+        border_touch_bonus(eval.anfield, eval.piece, x, y) as i64,
+        -(min_distance_new_cells_to_foe(eval.anfield, eval.piece, x, y) as i64),
+        horizontal_span_own(&apply_placement(eval.anfield, eval.piece, x, y)),
+    )
+}
+
+fn territory_column_bias(x: i32, center_col: i32) -> i64 {
+    -((x - center_col).abs() as i64)
+}
+
+fn horizontal_advance_bias(
     anfield: &Anfield,
     piece: &Piece,
     player: PlayerId,
-    x1: i32,
-    y1: i32,
-    x2: i32,
-    y2: i32,
-) -> std::cmp::Ordering {
-    let g1 = count_new_territory(anfield, piece, x1, y1);
-    let g2 = count_new_territory(anfield, piece, x2, y2);
-
-    g1.cmp(&g2)
-        .then_with(|| spawn_column_bias(x1).cmp(&spawn_column_bias(x2)))
-        .then_with(|| {
-            voronoi_delta(anfield, piece, x1, y1).cmp(&voronoi_delta(anfield, piece, x2, y2))
-        })
-        .then_with(|| {
-            foe_voronoi_delta(anfield, piece, x1, y1)
-                .cmp(&foe_voronoi_delta(anfield, piece, x2, y2))
-        })
-        .then_with(|| {
-            advance_bias(anfield, piece, player, x1, y1)
-                .cmp(&advance_bias(anfield, piece, player, x2, y2))
-        })
-        .then_with(|| {
-            min_distance_new_cells_to_foe(anfield, piece, x2, y2)
-                .cmp(&min_distance_new_cells_to_foe(anfield, piece, x1, y1))
-        })
-        .then_with(|| {
-            horizontal_span_own(&apply_placement(anfield, piece, x1, y1)).cmp(&horizontal_span_own(
-                &apply_placement(anfield, piece, x2, y2),
-            ))
-        })
-        .then_with(|| (x2, y2).cmp(&(x1, y1)))
-}
-
-fn spawn_column_bias(x: i32) -> i64 {
-    -((x - SPAWN_COLUMN).abs() as i64)
+    x: i32,
+    y: i32,
+) -> i64 {
+    let mut score = 0i64;
+    for py in 0..piece.height {
+        for px in 0..piece.width {
+            if !piece.is_filled(px, py) {
+                continue;
+            }
+            let ax = x + px as i32;
+            let idx = (y + py as i32) as usize * anfield.width + ax as usize;
+            if anfield.cells[idx] != crate::model::Cell::Empty {
+                continue;
+            }
+            score += match player {
+                PlayerId::P1 => ax as i64,
+                PlayerId::P2 => anfield.width as i64 - 1 - ax as i64,
+            };
+        }
+    }
+    score
 }
 
 fn advance_bias(anfield: &Anfield, piece: &Piece, player: PlayerId, x: i32, y: i32) -> i64 {
@@ -123,5 +157,23 @@ mod tests {
             mask: vec![true],
         };
         assert_eq!(choose_move(&anfield, &piece, PlayerId::P1), FALLBACK_MOVE);
+    }
+
+    #[test]
+    fn map00_spawn_column_stays_centered() {
+        let mut cells = vec![Cell::Empty; 20 * 15];
+        cells[2 * 20 + 9] = Cell::Own;
+        cells[12 * 20 + 9] = Cell::Foe;
+        let anfield = Anfield {
+            width: 20,
+            height: 15,
+            cells,
+        };
+        let piece = Piece {
+            width: 2,
+            height: 1,
+            mask: vec![true, true],
+        };
+        assert_eq!(choose_move(&anfield, &piece, PlayerId::P1), (9, 2));
     }
 }
